@@ -1,0 +1,8 @@
+
+yfinance
+pandas
+matplotlib
+pandas_ta
+dash
+plotly
+gunicorn
