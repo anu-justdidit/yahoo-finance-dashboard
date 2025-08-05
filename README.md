@@ -75,61 +75,9 @@ This project represents the kind of solutions I build for clients. I offer **wor
 
 ---
 
-## 🧩 How to Use
 
-1. **Clone the repo:**
 
-```bash
-git clone https://github.com/anu-justdidit/yahoo-finance-dashboard.git
-cd yahoo-finance-dashboard
-Install dependencies:
 
-bash
-Copy
-Edit
-pip install -r requirements.txt
-Run the dashboard:
 
-bash
-Copy
-Edit
-python app.py
-Open your browser to http://127.0.0.1:8050/ and start exploring the markets!
-
-🌍 Deployment
-This dashboard is production-ready — can be deployed on:
-
-🐍 PythonAnywhere
-
-☁️ Streamlit Community Cloud
-
-🔧 Heroku / Render / Fly.io
-
-🖥️ Localhost for internal use
-
-🔗 Let's Work Together
-Need a custom dashboard like this?
-
-👉 Connect with me on LinkedIn
-👉 Drop a mail
-👉 View Portfolio
-
-Whether you’re a startup, agency, founder, or solo trader, I build what you need — fast, clean, and scalable.
-
-📝 License
-This project is available under the MIT License.
-
-yaml
-Copy
-Edit
-
----
-
-## 💡 Tips for You
-
-- Add your **LinkedIn**, **email**, and **portfolio** links in the contact section.
-- Push your best visuals (screenshots of the dashboard) to the repo and embed them with:
-  ```md
-  ![Screenshot](images/dashboard.png)
 If you host this dashboard live (which you should!!), put the link at the top:
 🖥️ Live Demo → [yahoo-dashboard.example.com](https://...)
