@@ -79,7 +79,35 @@ This project represents the kind of solutions I build for clients. I offer **wor
 ## 📸 Dashboard Preview
 
 
+
 <img width="1912" height="1032" alt="aapl dashboard" src="https://github.com/user-attachments/assets/80ea3ecc-9655-4bb2-bdfc-95510dc0ce02" />
+
+This is a multi-indicator financial dashboard for AAPL (Apple Inc.), giving traders deep insights at a glance. Here's what’s going on:
+
+📈 Price Action (Candlestick Chart)
+Green candles = price went up that day.
+
+Red candles = price went down.
+
+Shows daily open, close, high, and low — perfect for spotting reversals, breakouts, and trends.
+
+🌫️ Bollinger Bands (Upper/Lower BB)
+Gray shaded area = Bollinger Band range.
+
+Measures volatility — the wider the band, the more volatile.
+
+Price touching or breaking out of bands = possible entry/exit points.
+
+☁️ Ichimoku Cloud (A & B)
+Red & green clouds = trend direction & strength.
+
+When price is above the cloud → bullish.
+
+When below the cloud → bearish.
+
+The cloud’s thickness = trend confidence (thick cloud = stronger trend).
+
+
 
 
 
