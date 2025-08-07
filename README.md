@@ -106,6 +106,7 @@ When price is above the cloud → bullish.
 When below the cloud → bearish.
 
 The cloud’s thickness = trend confidence (thick cloud = stronger trend).
+<img width="1901" height="330" alt="Screenshot 2025-08-07 190318" src="https://github.com/user-attachments/assets/76d50530-21cf-435a-bc62-75bbe937675c" />
 
 
 
