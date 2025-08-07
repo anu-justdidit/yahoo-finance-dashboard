@@ -76,6 +76,13 @@ This project represents the kind of solutions I build for clients. I offer **wor
 ---
 
 
+## 📸 Dashboard Preview
+
+
+<img width="1912" height="1032" alt="aapl dashboard" src="https://github.com/user-attachments/assets/80ea3ecc-9655-4bb2-bdfc-95510dc0ce02" />
+
+
+
 
 
 
