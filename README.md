@@ -115,4 +115,4 @@ The cloud’s thickness = trend confidence (thick cloud = stronger trend).
 
 
 If you host this dashboard live (which you should!!), put the link at the top:
-🖥️ Live Demo → [yahoo-dashboard.example.com](https://...)
+🖥️ Live Demo → http://127.0.0.1:8050/
