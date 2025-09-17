@@ -1,6 +1,9 @@
-dash>=3.0.0
-plotly>=5.0.0
-pandas>=2.0.0
-yfinance>=0.2.0
-numpy>=1.21.0
-gunicorn>=20.0.0
+dash
+plotly
+pandas
+yfinance
+numpy
+gunicorn
+beautifulsoup4
+requests
+lxml
