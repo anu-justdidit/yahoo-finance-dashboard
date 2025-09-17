@@ -1,5 +1,5 @@
 import dash
-from dash import html, dcc, Input, Output, callback, dash_table
+from dash import html, dcc, Input, Output, callback
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
@@ -82,7 +82,8 @@ def calculate_rsi(data, window=14):
     gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
     rs = gain / loss
-    return 100 - (100 / (1 + rs))
+    rsi = 100 - (100 / (1 + rs))
+    return rsi.fillna(50)  # Fill NaN values with neutral 50
 
 def calculate_sma(data, window=20):
     """Calculate Simple Moving Average"""
@@ -180,41 +181,9 @@ def fetch_stock_data(ticker, period="1y"):
         logger.error(f"Critical error with {ticker}: {e}")
         return None
 
-def load_data_from_csv(ticker):
-    """Load data from CSV file if available"""
-    try:
-        file_path = f"data/{ticker}.csv"
-        if os.path.exists(file_path):
-            df = pd.read_csv(file_path, parse_dates=['Date'])
-            df.set_index('Date', inplace=True)
-            logger.info(f"Loaded data from CSV for {ticker}")
-            return df
-        return None
-    except Exception as e:
-        logger.error(f"Error loading CSV for {ticker}: {e}")
-        return None
-
 def get_stock_data(ticker, period="1y"):
-    """Get stock data with multiple fallback strategies"""
-    # First try to load from CSV
-    csv_data = load_data_from_csv(ticker)
-    if csv_data is not None:
-        # Filter data based on the requested period
-        if period == "1mo":
-            return csv_data.last('30D')
-        elif period == "3mo":
-            return csv_data.last('90D')
-        elif period == "6mo":
-            return csv_data.last('180D')
-        elif period == "1y":
-            return csv_data.last('365D')
-        elif period == "2y":
-            return csv_data.last('730D')
-        elif period == "5y":
-            return csv_data.last('1825D')
-        return csv_data
-    
-    # If CSV not available, try API
+    """Get stock data with fallback strategies"""
+    # Try API
     real_data = fetch_stock_data(ticker, period)
     
     if real_data is not None and not real_data.empty:
@@ -295,7 +264,7 @@ def fetch_financial_news(ticker="AAPL", max_articles=5):
         ]
 
 # ======================
-# APP LAYOUT
+# APP LAYOUT - FIXED VERSION
 # ======================
 app.layout = html.Div([
     # Header
@@ -375,16 +344,16 @@ app.layout = html.Div([
         'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'
     }),
     
-    # Main content area
+    # Main content area - FIXED LAYOUT
     html.Div([
-        # Left column - Chart
+        # Left column - Main Chart
         html.Div([
             dcc.Loading(
                 id="loading-graph",
                 type="circle",
                 children=dcc.Graph(
                     id='stock-graph', 
-                    style={'height': '65vh'},
+                    style={'height': '60vh'},
                     config={'displayModeBar': True, 'displaylogo': False}
                 )
             )
@@ -392,13 +361,13 @@ app.layout = html.Div([
         
         # Right column - Additional info
         html.Div([
-            html.H3("Performance Metrics", style={'borderBottom': '2px solid #3498db', 'paddingBottom': '10px'}),
-            html.Div(id='performance-metrics'),
+            html.H3("Performance Metrics", style={'borderBottom': '2px solid #3498db', 'paddingBottom': '10px', 'marginTop': '0'}),
+            html.Div(id='performance-metrics', style={'marginBottom': '20px'}),
             
-            html.H3("Volume", style={'borderBottom': '2px solid #3498db', 'paddingBottom': '10px', 'marginTop': '20px'}),
+            html.H3("Volume", style={'borderBottom': '2px solid #3498db', 'paddingBottom': '10px'}),
             dcc.Graph(id='volume-chart', style={'height': '200px'}),
-        ], style={'width': '30%', 'padding': '10px', 'backgroundColor': 'white', 'borderRadius': '5px'})
-    ], style={'display': 'flex', 'margin': '10px 20px'}),
+        ], style={'width': '30%', 'padding': '10px', 'backgroundColor': 'white', 'borderRadius': '5px', 'height': 'fit-content'})
+    ], style={'display': 'flex', 'margin': '10px 20px', 'gap': '15px'}),
     
     # News section
     html.Div([
@@ -430,7 +399,7 @@ app.layout = html.Div([
 ])
 
 # ======================
-# CALLBACKS
+# CALLBACKS - FIXED VERSION
 # ======================
 @app.callback(
     [Output('data-store', 'data'),
@@ -512,8 +481,9 @@ def update_dashboard(data_json, selected_indicators, selected_stock, n_intervals
             rows=2, cols=1, 
             shared_xaxes=True,
             vertical_spacing=0.05,
-            subplot_titles=(f'{selected_stock} Price', 'Volume'),
-            row_width=[0.7, 0.3]
+            subplot_titles=(f'{selected_stock} Price', 'Technical Indicators'),
+            row_width=[0.7, 0.3],
+            specs=[[{"secondary_y": True}], [{"secondary_y": False}]]
         )
         
         # Add candlestick chart
@@ -538,8 +508,7 @@ def update_dashboard(data_json, selected_indicators, selected_stock, n_intervals
                     x=data.index, y=indicators['rsi'], 
                     name='RSI (14)',
                     line=dict(color='purple', width=1.5),
-                    yaxis='y2'
-                ), row=1, col=1)
+                ), row=2, col=1)
             
             # SMAs
             for key in indicators:
@@ -577,18 +546,28 @@ def update_dashboard(data_json, selected_indicators, selected_stock, n_intervals
                     fill='tonexty',
                     fillcolor='rgba(200, 200, 200, 0.1)'
                 ), row=1, col=1)
-        
-        # Add volume bar chart
-        colors = ['#e74c3c' if data['Close'].iloc[i] < data['Open'].iloc[i] else '#2ecc71' 
-                 for i in range(len(data))]
-        
-        fig.add_trace(go.Bar(
-            x=data.index,
-            y=data['Volume'],
-            name='Volume',
-            marker_color=colors,
-            opacity=0.5
-        ), row=2, col=1)
+            
+            # MACD
+            if 'macd' in indicators:
+                fig.add_trace(go.Bar(
+                    x=data.index,
+                    y=indicators['macd_histogram'],
+                    name='MACD Histogram',
+                    marker_color=np.where(indicators['macd_histogram'] >= 0, '#2ecc71', '#e74c3c'),
+                    opacity=0.6
+                ), row=2, col=1)
+                
+                fig.add_trace(go.Scatter(
+                    x=data.index, y=indicators['macd'], 
+                    name='MACD',
+                    line=dict(color='blue', width=1.5)
+                ), row=2, col=1)
+                
+                fig.add_trace(go.Scatter(
+                    x=data.index, y=indicators['macd_signal'], 
+                    name='Signal',
+                    line=dict(color='red', width=1.5)
+                ), row=2, col=1)
         
         # Update layout
         fig.update_layout(
@@ -601,21 +580,9 @@ def update_dashboard(data_json, selected_indicators, selected_stock, n_intervals
             hovermode='x unified'
         )
         
-        # Add secondary y-axis for RSI if needed
-        if selected_indicators and 'rsi' in selected_indicators:
-            fig.update_layout(
-                yaxis2=dict(
-                    title="RSI",
-                    overlaying="y",
-                    side="right",
-                    range=[0, 100],
-                    showgrid=False
-                )
-            )
-        
         # Update y-axes labels
         fig.update_yaxes(title_text="Price (USD)", row=1, col=1)
-        fig.update_yaxes(title_text="Volume", row=2, col=1)
+        fig.update_yaxes(title_text="Value", row=2, col=1)
         
         # Calculate metrics
         if len(data) > 0:
@@ -649,24 +616,27 @@ def update_dashboard(data_json, selected_indicators, selected_stock, n_intervals
             # Performance metrics table
             performance_metrics = html.Div([
                 html.Div([
-                    html.Span("Period High:", style={'fontWeight': 'bold'}),
-                    html.Span(f" ${period_high:.2f}")
-                ], style={'marginBottom': '8px'}),
+                    html.Span("Period High:", style={'fontWeight': 'bold', 'marginRight': '5px'}),
+                    html.Span(f"${period_high:.2f}")
+                ], style={'marginBottom': '8px', 'display': 'flex', 'justifyContent': 'space-between'}),
                 html.Div([
-                    html.Span("Period Low:", style={'fontWeight': 'bold'}),
-                    html.Span(f" ${period_low:.2f}")
-                ], style={'marginBottom': '8px'}),
+                    html.Span("Period Low:", style={'fontWeight': 'bold', 'marginRight': '5px'}),
+                    html.Span(f"${period_low:.2f}")
+                ], style={'marginBottom': '8px', 'display': 'flex', 'justifyContent': 'space-between'}),
                 html.Div([
-                    html.Span("Avg Volume:", style={'fontWeight': 'bold'}),
-                    html.Span(f" {avg_volume:,.0f}")
-                ], style={'marginBottom': '8px'}),
+                    html.Span("Avg Volume:", style={'fontWeight': 'bold', 'marginRight': '5px'}),
+                    html.Span(f"{avg_volume:,.0f}")
+                ], style={'marginBottom': '8px', 'display': 'flex', 'justifyContent': 'space-between'}),
                 html.Div([
-                    html.Span("Volatility:", style={'fontWeight': 'bold'}),
-                    html.Span(f" {volatility:.2%}")
-                ])
+                    html.Span("Volatility:", style={'fontWeight': 'bold', 'marginRight': '5px'}),
+                    html.Span(f"{volatility:.2%}")
+                ], style={'display': 'flex', 'justifyContent': 'space-between'})
             ])
         
         # Create volume chart
+        colors = ['#e74c3c' if data['Close'].iloc[i] < data['Open'].iloc[i] else '#2ecc71' 
+                 for i in range(len(data))]
+        
         volume_fig = go.Figure(go.Bar(
             x=data.index,
             y=data['Volume'],
@@ -679,7 +649,8 @@ def update_dashboard(data_json, selected_indicators, selected_stock, n_intervals
             template='plotly_white',
             showlegend=False,
             margin=dict(l=20, r=20, t=30, b=20),
-            height=200
+            height=200,
+            title=f'{selected_stock} Trading Volume'
         )
         
         volume_fig.update_yaxes(title_text="Volume")
@@ -722,14 +693,9 @@ def update_dashboard(data_json, selected_indicators, selected_stock, n_intervals
 # RUN APPLICATION
 # ======================
 if __name__ == "__main__":
-    # Environment configuration
-    os.environ["NUMBA_DISABLE_JIT"] = "1"
-    
     # Run the application
-    app.run_server(
+    app.run(
         debug=Config.DEBUG, 
         host="0.0.0.0", 
-        port=Config.PORT,
-        dev_tools_ui=Config.DEBUG,
-        dev_tools_props_check=Config.DEBUG
+        port=Config.PORT
     )
