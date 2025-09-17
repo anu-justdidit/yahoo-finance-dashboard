@@ -11,6 +11,12 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import logging
+# ======================
+# COMPATIBILITY FIXES
+# ======================
+# Handle Python version compatibility
+import sys
+print(f"Python version: {sys.version}")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
